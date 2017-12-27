@@ -9,11 +9,12 @@ import re
 import nltk
 from nltk.corpus import stopwords
 import sys
+import json
 
 #----------------------------------------------------------------------------
 # Variables Globales
 #----------------------------------------------------------------------------
-usandoLineaDeComandos = False
+usingCommandLine = False
 
 #----------------------------------------------------------------------------
 # Funciones
@@ -32,7 +33,7 @@ def generateWordCloud(words, width, height, bg_color, words_count, output_file_n
                    random_state=1,
                    collocations=False).generate(text)
     # Si se usa línea de comandos, se requiere todo el path de salida
-    if usandoLineaDeComandos is True:
+    if usingCommandLine is True:
         wc.to_file(output_file_name)
     # De lo contrario se pone en el directorio actual/images
     else:
@@ -102,7 +103,7 @@ twitterClient = Twython(APP_KEY, access_token=ACCESS_TOKEN)
 # si se paso los keywords via línea de commandos
 try:
     query = sys.argv[1]
-    usandoLineaDeComandos = True
+    usingCommandLine = True
 except:  # si no, cargar predeterminado
     query = "@Uruguay OR #Uruguay"
 
@@ -119,7 +120,7 @@ if len(queryResult['statuses']) == 0:
 # Proceso los nombres de los archivos de salida en la línea de comandos
 #----------------------------------------------------------------------------
 
-if usandoLineaDeComandos == True:
+if usingCommandLine == True:
     try:  # intento cargar los nombres
         # nombre de archivo para screen names (usuarios mas activos)
         mostactiveusers_file_name = sys.argv[2]
@@ -148,17 +149,21 @@ nltk.download("stopwords", quiet=True)
 # Extracción de URL's, HashTags, screen_names, y demás info
 #----------------------------------------------------------------------------
 #creo dataframe vacío con las columnas a usar
-df_tweets = DataFrame(columns=['ids','texts','screen_names','names','locations','descriptions','langs','hashtags','urls'])
+df_tweets = DataFrame(columns=['ids','texts','screen_names','names','locations','descriptions','langs','hashtags','urls','images','link_to_tweet'])
 #creao una lista vacía que contendrá los hashtags
 lst_hashtags = []
 #creo una lista vacía que contendrá las URL's 
 lst_urls = []
+#creo una lista vacía que contendrá las imagenes/media
+lst_images = []
+#creo una lista vacía que contendrá links directo to tuits
+lst_links_to_tuits = []
 #recorro todos los statuses
 for status in queryResult['statuses']:
     #lista hashtag vacía
     hashtags=[]
     #si hay alguna hashtag
-    if len(status['entities']['hashtags']) > 0:
+    if 'hashtags' in status['entities'] and len(status['entities']['hashtags']) > 0:
         #recorro todos los hashtags y obtengo el texto en minúsculas
         hashtags = [hashtag['text'].lower() for hashtag in status['entities']['hashtags']]
         #lo agrego a la lista de hashtags global
@@ -166,11 +171,23 @@ for status in queryResult['statuses']:
     #lista urls vacía
     urls=[]
     #si hay alguna URL
-    if len(status['entities']['urls']) > 0:
+    if 'urls' in status['entities'] and len(status['entities']['urls']) > 0:
         #recorro todas las urls, extraigo la url expandida y la agrego a urls
         urls = [url['expanded_url'] for url in status['entities']['urls']]
         #agrego las urls encontradas a la lista
         lst_urls.extend(urls)
+    #lista urls imágenes vacía
+    images=[]
+    #si hay alguna URL
+    if 'media' in status['entities'] and len(status['entities']['media']) > 0:
+        #recorro todas las urls, extraigo la url expandida y la agrego a urls
+        images = [image['media_url'] for image in status['entities']['media']]
+        #agrego las urls encontradas a la lista
+        lst_images.extend(images)
+    #genero link to tuit
+    link_to_tweet = 'https://twitter.com/statuses/'+status['id_str']
+    #agrego link to tuit a la lista
+    lst_links_to_tuits.append(link_to_tweet)
     #agrego nueva fila de datos al dataframe
     df_tweets = df_tweets.append({
             'ids': status['id'],
@@ -181,7 +198,9 @@ for status in queryResult['statuses']:
             'descriptions': status['user']['description'],
             'langs': status['user']['lang'],
             'hashtags':hashtags,
-            'urls':urls
+            'urls':urls,
+            'images':lst_images,
+            'link_to_tweet':link_to_tweet
             },ignore_index=True)
 
 
@@ -233,10 +252,27 @@ generateWordCloud(words=lst_hashtags,
 
 
 # Si estamos en línea de comandos, devolver los caminos a los archivos generados
-if usandoLineaDeComandos == True:
-    print(mostactiveusers_file_name)
-    print(mostusedwords_file_name)
-    print(hashtags_file_name)
+if usingCommandLine == True:
+    #creo objeto con estructura para JSON
+    results = {
+            'images':
+                {
+                 'users':mostactiveusers_file_name,
+                 'words': mostusedwords_file_name,
+                 'hashtags':hashtags_file_name
+                 },
+            'media':
+                {
+                 'links':
+                     {
+                      'images':lst_images,
+                      'tweet':lst_links_to_tuits,
+                      'urls':lst_urls
+                     }
+                }
+            }
+    #convierto objeto a string json y lo retorno
+    print(json.dumps(results))
 else:
     print(os.path.join(os.getcwd(), mostactiveusers_file_name))
     print(os.path.join(os.getcwd(), mostusedwords_file_name))
