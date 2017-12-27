@@ -1,7 +1,7 @@
 # TwitterAnalyticsPythonScript
 Twitter text mining de menciones y palabras mas usadas.
 
-Por ahora solo genera dos nubes de palabras (wordcloud) con los usuarios mas activos, de las palabras, y hashtags mas relevantes.
+Por ahora solo genera tres nubes de palabras (wordcloud) con los usuarios mas activos, de las palabras, y hashtags mas relevantes.
 
 ## Ejemplo de resultados para "@Uruguay OR #Uruguay"
 
