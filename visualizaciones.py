@@ -154,7 +154,7 @@ df_tweets = DataFrame(columns=['ids','texts','screen_names','names','locations',
 lst_hashtags = []
 #creo una lista vacía que contendrá las URL's 
 lst_urls = []
-#creo una lista vacía que contendrá las imagenes/media
+#creo una lista vacía que contendrá las imagenes/media y URL a tuit
 lst_images = []
 #creo una lista vacía que contendrá links directo to tuits
 lst_links_to_tuits = []
@@ -176,18 +176,19 @@ for status in queryResult['statuses']:
         urls = [url['expanded_url'] for url in status['entities']['urls']]
         #agrego las urls encontradas a la lista
         lst_urls.extend(urls)
+    #genero link to tuit
+    link_to_tweet = 'https://twitter.com/statuses/'+status['id_str']
+    #agrego link to tuit a la lista
+    lst_links_to_tuits.append(link_to_tweet)
     #lista urls imágenes vacía
     images=[]
     #si hay alguna URL
     if 'media' in status['entities'] and len(status['entities']['media']) > 0:
         #recorro todas las urls, extraigo la url expandida y la agrego a urls
         images = [image['media_url'] for image in status['entities']['media']]
-        #agrego las urls encontradas a la lista
-        lst_images.extend(images)
-    #genero link to tuit
-    link_to_tweet = 'https://twitter.com/statuses/'+status['id_str']
-    #agrego link to tuit a la lista
-    lst_links_to_tuits.append(link_to_tweet)
+        #agrego las urls encontradas a la lista y el link al su tuit
+        lst_images.append({"images":images,"url":link_to_tweet})
+
     #agrego nueva fila de datos al dataframe
     df_tweets = df_tweets.append({
             'ids': status['id'],
@@ -199,7 +200,7 @@ for status in queryResult['statuses']:
             'langs': status['user']['lang'],
             'hashtags':hashtags,
             'urls':urls,
-            'images':lst_images,
+            'images':images,
             'link_to_tweet':link_to_tweet
             },ignore_index=True)
 
@@ -263,12 +264,8 @@ if usingCommandLine == True:
                  },
             'media':
                 {
-                 'links':
-                     {
-                      'images':lst_images,
-                      'tweet':lst_links_to_tuits,
-                      'urls':lst_urls
-                     }
+                 'tweet_images':lst_images,
+                 'shared_urls':lst_urls
                 }
             }
     #convierto objeto a string json y lo retorno

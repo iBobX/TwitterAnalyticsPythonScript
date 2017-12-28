@@ -27,7 +27,7 @@ La sintaxis sería algo así:
 
 python3 visualizaciones.py "que buscar" "/camino/nombre_imagen_users.png"  "/camino/nombre_imagen_words.png"  "/camino/nombre_imagen_hashtags.png"
 
-Esto devolverá una cadena JSON la cual contiene el camino a las imágenes generadas, la extracción de los links a las imágenes compartidas en las publicaciones, los links a las url's compartidas, y los links directos a los tuits:
+Esto devolverá una cadena JSON la cual contiene el camino a las imágenes generadas, la extracción de los links a las imágenes compartidas en las publicaciones con los links a su tuit, y  las url's compartidas en todos los tuits:
 
 ```json
 {
@@ -37,28 +37,35 @@ Esto devolverá una cadena JSON la cual contiene el camino a las imágenes gener
     "hashtags": "/camino/nombre_imagen_hashtags.png"
   },
   "media": {
-    "links": {
-      "images": [
-        "http://pbs.twimg.com/media/...jpg",
-        "http://pbs.twimg.com/media/...jpg",
-        "http://pbs.twimg.com/media/...jpg",
+      "tweet_images": [
+        {
+           "images: [
+               "http://pbs.twimg.com/media/...jpg",
+               "http://pbs.twimg.com/media/...jpg",
+               ...
+            ],
+            "url": "https://twitter.com/statuses/####"
+        },
+        {
+           "images: [
+               "http://pbs.twimg.com/media/...jpg",
+               "http://pbs.twimg.com/media/...jpg",
+               ...
+            ],
+            "url": "https://twitter.com/statuses/####"
+        },
         ...
-      ],
-      "tweet": [
-        "https://twitter.com/statuses/####",
-        "https://twitter.com/statuses/####",
-        "https://twitter.com/statuses/####",
-        ...
-      ],
-      "urls": [
+       ],
+      "shared_urls": [
         "https://shared_url_1...",
         "https://shared_url_2...",
         "https://shared_url_3...",
         ...
       ]
-    }
   }
 }
+
+
 ```
 
 
