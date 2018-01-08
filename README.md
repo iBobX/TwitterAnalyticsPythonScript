@@ -1,7 +1,7 @@
 # TwitterAnalyticsPythonScript
 Twitter text mining de menciones y palabras mas usadas.
 
-Por ahora solo genera tres nubes de palabras (wordcloud) con los usuarios mas activos, de las palabras, y hashtags mas relevantes.
+Por ahora solo genera tres nubes de palabras (wordcloud) con los usuarios mas activos, palabras y hashtags mas relevantes, y un histograma de idiomas mas usados en los tuits.
 
 ## Ejemplo de resultados para "@Uruguay OR #Uruguay"
 
@@ -19,6 +19,10 @@ Por ahora solo genera tres nubes de palabras (wordcloud) con los usuarios mas ac
 ![alt text](tda_hashtags.png "Hashtags mas relevantes")
 
 
+### Idiomas mas relevantes
+![alt text](tda_langs.png "Idiomas mas relevantes")
+
+
 ## Usándolo en línea de comandos
 
 Este script se puede usar en línea de comandos.
@@ -34,7 +38,8 @@ Esto devolverá una cadena JSON la cual contiene el camino a las imágenes gener
   "images": {
     "users": "/camino/nombre_imagen_users.png",
     "words": "/camino/nombre_imagen_words.png",
-    "hashtags": "/camino/nombre_imagen_hashtags.png"
+    "hashtags": "/camino/nombre_imagen_hashtags.png",
+    "tlangs": "/camino/nombre_imagen_tweetlangs.png",
   },
   "media": {
       "tweet_images": [

@@ -10,6 +10,7 @@ import nltk
 from nltk.corpus import stopwords
 import sys
 import json
+import matplotlib.pyplot as plt
 
 #----------------------------------------------------------------------------
 # Variables Globales
@@ -20,9 +21,12 @@ usingCommandLine = False
 # Funciones
 #----------------------------------------------------------------------------
 
-# Creacion de WordCloud
-# La salida es en el directorio actual
 def generateWordCloud(words, width, height, bg_color, words_count, output_file_name):
+    '''
+    Creao un Wordcloud
+    La salida es en el directorio actual,
+    o la especificada en la línea de comandos
+    '''
     stopwords = set(STOPWORDS)
     text = ' '.join(words)
     wc = WordCloud(width=width,
@@ -40,11 +44,15 @@ def generateWordCloud(words, width, height, bg_color, words_count, output_file_n
         wc.to_file(os.path.join(os.getcwd(), output_file_name))
 
 
-# Funcion que toma todo el texto, lo limpia
-# de menciones, hastags, emoticones, URL's, símbolos,
-# y palabras comunes no importantes para el cometido
-# retorna un list con todas las palabras
 def cleanAndTokenizeText(list_TwitsText):
+    '''
+    Toma todo el texto, lo limpia de menciones,
+    hastags, emoticones, URL's, símbolos,
+    y palabras comunes no importantes para
+    el cometido, y retorna un list con todas
+    las palabras limpias.
+    '''
+
     # patter para eliminar emoticons
     emoji_pattern = re.compile("["
                                u"\U0001F600-\U0001F64F"  # emoticons
@@ -83,6 +91,27 @@ def cleanAndTokenizeText(list_TwitsText):
     return filtered_words
 
 
+
+def plotHist(data,bins,title,width,height,output_file_name):
+    '''
+    Genera un histograma de barras
+    y lo graba al archivo especificado
+    '''
+    plt.figure(figsize=(width/72,height/72))
+    plt.title(title)
+    cleanData=data[data!='und']
+
+    plt.hist(x=cleanData,bins=bins)
+    # Si se usa línea de comandos, se requiere todo el path de salida
+    if usingCommandLine is True:
+        plt.savefig(output_file_name)
+    # De lo contrario se pone en el directorio actual/images
+    else:
+        plt.savefig(os.path.join(os.getcwd(), output_file_name))
+    plt.clf()
+    return
+
+
 #----------------------------------------------------------------------------
 # Inicialización de Twitter
 # Debes crear una aplicacion en https://apps.twitter.com para obtener
@@ -105,7 +134,7 @@ try:
     query = sys.argv[1]
     usingCommandLine = True
 except:  # si no, cargar predeterminado
-    query = "@Uruguay OR #Uruguay"
+    query = "#Uruguay"
 
 # Buscar...
 queryResult = twitterClient.search(q=query + ' -filter:retweets',
@@ -128,6 +157,8 @@ if usingCommandLine == True:
         mostusedwords_file_name = sys.argv[3]
         # nombre de archivo para nube de hashtags
         hashtags_file_name = sys.argv[4]
+        # nombre de archivo para histograma de idiomas de tuits
+        langs_file_name = sys.argv[5]
     except:  # si alguno de los nombres no fue pasado error y salir
         print("\n\nPlease specify desired output images filenames. Ex: \"tda_mentions\" \"tda_words\"")
         sys.exit(1)
@@ -135,6 +166,7 @@ else:  # en caso de no ser línea de commandos, asumir nombres
     mostactiveusers_file_name = 'tda_mostactive.png'
     mostusedwords_file_name = 'tda_words.png'
     hashtags_file_name = 'tda_hashtags.png'
+    langs_file_name = 'tda_langs.png'
 
 
 #----------------------------------------------------------------------------
@@ -197,14 +229,15 @@ for status in queryResult['statuses']:
             'names': status['user']['name'],
             'locations': status['user']['location'],
             'descriptions': status['user']['description'],
-            'langs': status['user']['lang'],
+            'langs': status['lang'],
+            'users_time_zones': status['user']['time_zone'],
             'hashtags':hashtags,
             'urls':urls,
             'images':images,
             'link_to_tweet':link_to_tweet
             },ignore_index=True)
 
-
+    
 #----------------------------------------------------------------------------
 # Extracción de Screen Names
 #----------------------------------------------------------------------------
@@ -252,6 +285,18 @@ generateWordCloud(words=lst_hashtags,
                   output_file_name=hashtags_file_name)
 
 
+#----------------------------------------------------------------------------
+# Histograma de idiomas
+#----------------------------------------------------------------------------
+plotHist(data=df_tweets['langs'],
+         bins=6,
+         title='Most Relevant Languages',
+         width=800,
+         height=400,
+         output_file_name=langs_file_name)
+
+
+
 # Si estamos en línea de comandos, devolver los caminos a los archivos generados
 if usingCommandLine == True:
     #creo objeto con estructura para JSON
@@ -260,7 +305,8 @@ if usingCommandLine == True:
                 {
                  'users':mostactiveusers_file_name,
                  'words': mostusedwords_file_name,
-                 'hashtags':hashtags_file_name
+                 'hashtags':hashtags_file_name,
+                 'tlangs': langs_file_name,
                  },
             'media':
                 {
@@ -274,4 +320,5 @@ else:
     print(os.path.join(os.getcwd(), mostactiveusers_file_name))
     print(os.path.join(os.getcwd(), mostusedwords_file_name))
     print(os.path.join(os.getcwd(), hashtags_file_name))
+    print(os.path.join(os.getcwd(), langs_file_name))
     print("Done!")
