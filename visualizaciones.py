@@ -10,7 +10,10 @@ import nltk
 from nltk.corpus import stopwords
 import sys
 import json
-import matplotlib.pyplot as plt
+import matplotlib as mpl
+
+#Configurar para que no requiera X
+mpl.use('Agg')
 
 #----------------------------------------------------------------------------
 # Variables Globales
@@ -97,18 +100,18 @@ def plotHist(data,bins,title,width,height,output_file_name):
     Genera un histograma de barras
     y lo graba al archivo especificado
     '''
-    plt.figure(figsize=(width/72,height/72))
-    plt.title(title)
+    mpl.pyplot.figure(figsize=(width/72,height/72))
+    mpl.pyplot.title(title)
     cleanData=data[data!='und']
 
-    plt.hist(x=cleanData,bins=bins)
+    mpl.pyplot.hist(x=cleanData,bins=bins)
     # Si se usa línea de comandos, se requiere todo el path de salida
     if usingCommandLine is True:
-        plt.savefig(output_file_name)
+        mpl.pyplot.savefig(output_file_name)
     # De lo contrario se pone en el directorio actual/images
     else:
-        plt.savefig(os.path.join(os.getcwd(), output_file_name))
-    plt.clf()
+        mpl.pyplot.savefig(os.path.join(os.getcwd(), output_file_name))
+    mpl.pyplot.clf()
     return
 
 
