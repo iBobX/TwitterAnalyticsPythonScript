@@ -29,7 +29,7 @@ Este script se puede usar en línea de comandos.
 
 La sintaxis sería algo así:
 
-python3 visualizaciones.py "que buscar" "/camino/nombre_imagen_users.png"  "/camino/nombre_imagen_words.png"  "/camino/nombre_imagen_hashtags.png"
+python3 visualizaciones.py "que buscar" "/camino/nombre_imagen_users.png"  "/camino/nombre_imagen_words.png"  "/camino/nombre_imagen_hashtags.png" "/camino/nombre_imagen_tweetlangs.png"
 
 Esto devolverá una cadena JSON la cual contiene el camino a las imágenes generadas, la extracción de los links a las imágenes compartidas en las publicaciones con los links a su tuit, y  las url's compartidas en todos los tuits:
 
