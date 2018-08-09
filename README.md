@@ -73,5 +73,3 @@ Esto devolverá una cadena JSON la cual contiene el camino a las imágenes gener
 
 ```
 
-
-Nota: Un agradecimiento a [@d4tagirl](https://github.com/d4tagirl/DuraznoConfMentions) por haber compartido su script en R que me sirvió como inspiración para este. ¡Una genia! ¡gracias!
